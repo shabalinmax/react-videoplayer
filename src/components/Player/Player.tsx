@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import React, {createRef, FC, useMemo, useState} from 'react';
 import {PlayerModel} from './PlayerModel';
 import {ICurrentSquares, IPlayerProps, PlayersCount} from './EnumsAndTypes';
 
@@ -8,43 +8,75 @@ const Player: FC<IPlayerProps> = (props) => {
         containerSize: props.containerSize
     }))
     const [currentSquares, setCurrentSquares] = useState<ICurrentSquares>(playerModel.currentSquares);
+    const [timer, setTimer] = useState<NodeJS.Timer | null>(null)
+    const inputRefs: React.RefObject<HTMLVideoElement>[] = useMemo(() => currentSquares.squareInfo.map(i => createRef()), []);
 
     const handleGridChange = async (number: PlayersCount) => {
         const newCountOfSquares = number; // Здесь можно указать нужное количество квадратов
         playerModel.changeGrid(newCountOfSquares);
         setCurrentSquares(playerModel.currentSquares);
     };
-    const handleSquareSelect = (id: number) => {
-        playerModel.selectSquare(id);
-        setCurrentSquares(playerModel.currentSquares);
-    };
-    const squareSize = Math.floor(props.containerSize / (currentSquares.squareInfo.length - 3));
+
     const setNewInfo = async () => {
-        playerModel.addLinksToCameras([{cameraId: 0, link: 'hui0'}, {cameraId: 1, link: 'hui1'}])
+        playerModel.addLinksToCameras([{
+            cameraId: 0,
+            link: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+        }])
         setCurrentSquares((prevState) => ({
             ...prevState,
             squareInfo: playerModel.currentSquares.squareInfo
         }));
     }
+    const onClickHandler = (event: React.MouseEvent<HTMLVideoElement>, index: number) => {
+        event.preventDefault();
+        if (timer) {
+            playerModel.selectSquare(index)
+            setCurrentSquares((prevState) => ({
+                squareInfo: playerModel.currentSquares.squareInfo,
+                styles: playerModel.currentSquares.styles
+            }));
+            const videoRef = inputRefs[index].current
+            if (videoRef) {
+                if (videoRef.paused) {
+                    videoRef.play()
+                } else {
+                    videoRef.pause()
+                }
+            }
+            setTimer(null)
+        } else {
+            const videoRef = inputRefs[index].current
+            if (videoRef) {
+                if (videoRef.paused) {
+                    videoRef.play()
+                } else {
+                    videoRef.pause()
+                }
+            }
+            setTimer(setTimeout(() => {
+                setTimer(null)
+            }, 300))
+        }
+    }
+
     return (
-        <div>
-            <div style={currentSquares.styles}>
-                {currentSquares.squareInfo.map((square) => (
-                    <video
-                        style={{ margin: '10px'}}
-                        key={square.id}
-                        width={squareSize}
-                        height={squareSize}
-                        controls
-                    />
+            <div style={{...currentSquares.styles, width: playerModel.containerSize}}>
+                {currentSquares.squareInfo.map((square, index) => (
+                    <div key={square.id}>
+                        <video
+                            ref={inputRefs[index]}
+                            controls
+                            // style={{margin: '10px'}}
+                            key={square.id}
+                            width={'100%'}
+                            height={'100%'}
+                            src={square.link ?? undefined}
+                            onClick={(event: React.MouseEvent<HTMLVideoElement>) => onClickHandler(event, square.id)}
+                        />
+                    </div>
                 ))}
+                <button onClick={() => setNewInfo()}>+</button>
             </div>
-            <button onClick={() => handleGridChange(PlayersCount.Two)}>2</button>
-            <button onClick={() => handleGridChange(PlayersCount.Four)}>4</button>
-            <button onClick={() => handleGridChange(PlayersCount.Six)}>6</button>
-            <button onClick={() => handleGridChange(PlayersCount.Eight)}>8</button>
-            <button onClick={() => setNewInfo()}>+++</button>
-        </div>
     );
 };
 

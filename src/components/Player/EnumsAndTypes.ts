@@ -8,7 +8,7 @@ export enum PlayersCount {
 }
 export interface IPlayerProps {
     defaultPlayersCount: PlayersCount,
-    containerSize: number
+    containerSize: string
 }
 
 export interface ICurrentSquares {
@@ -17,6 +17,5 @@ export interface ICurrentSquares {
         display: string,
         gridTemplateColumns: string,
         gridTemplateRows: string,
-
     }
 }

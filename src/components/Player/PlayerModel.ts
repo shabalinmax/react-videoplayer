@@ -3,14 +3,14 @@ import {ICurrentSquares, IPlayerProps, PlayersCount} from "./EnumsAndTypes";
 export class PlayerModel {
 
     currentPlayersCount: PlayersCount;
-    private containerSize: number;
+    containerSize: string;
     static currentSquares: ICurrentSquares;
     static changeGrid: void;
     currentSquares: ICurrentSquares;
 
     constructor(params: IPlayerProps) {
         const {defaultPlayersCount, containerSize} = params;
-        this.containerSize = containerSize ?? 600;
+        this.containerSize = containerSize ?? '100%';
         this.currentPlayersCount = defaultPlayersCount;
         this.currentSquares = this.createGrid(defaultPlayersCount);
     }

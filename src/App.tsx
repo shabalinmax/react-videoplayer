@@ -6,7 +6,7 @@ import {PlayersCount} from "./components/Player/EnumsAndTypes";
 function App() {
   return (
     <div className="App">
-     <Player defaultPlayersCount={PlayersCount.Nine} containerSize={1200}/>
+     <Player defaultPlayersCount={PlayersCount.Nine} containerSize={'90%'}/>
     </div>
   );
 }
